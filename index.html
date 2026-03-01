@@ -1,0 +1,448 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Verificador de Billetes - Bolivia</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            font-size: 24px;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            color: #666;
+            text-align: center;
+            margin-bottom: 30px;
+            font-size: 14px;
+            border-bottom: 2px solid #f0f0f0;
+            padding-bottom: 20px;
+        }
+
+        .form-group {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* ESTILOS MODIFICADOS: Checkboxes en columnas */
+        .denominacion-container {
+            display: flex;
+            justify-content: space-between;
+            gap: 15px;
+            margin-bottom: 10px;
+        }
+
+        .denominacion-option {
+            flex: 1;
+            text-align: center;
+        }
+
+        .denominacion-option input[type="checkbox"] {
+            display: none;
+        }
+
+        .denominacion-option label {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 20px 10px;
+            background: #f8f9fa;
+            border: 2px solid #e0e0e0;
+            border-radius: 15px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            margin: 0;
+            font-size: 24px;
+            font-weight: 700;
+            color: #666;
+        }
+
+        .denominacion-option label:hover {
+            background: #e9ecef;
+            border-color: #667eea;
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(102, 126, 234, 0.2);
+        }
+
+        .denominacion-option input[type="checkbox"]:checked + label {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            border-color: #667eea;
+            color: white;
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        .denominacion-option label small {
+            font-size: 14px;
+            font-weight: normal;
+            opacity: 0.8;
+            margin-top: 5px;
+        }
+
+        .denominacion-option input[type="checkbox"]:checked + label small {
+            color: white;
+        }
+
+        .serie-input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 18px;
+            transition: all 0.3s ease;
+            background: white;
+            text-align: center;
+        }
+
+        .serie-input:focus {
+            outline: none;
+            border-color: #667eea;
+            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+        }
+
+        .btn-verify {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 18px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin: 25px 0;
+        }
+
+        .btn-verify:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.4);
+        }
+
+        .btn-verify:active {
+            transform: translateY(0);
+        }
+
+        .result-container {
+            border-radius: 10px;
+            padding: 20px;
+            text-align: center;
+            font-size: 18px;
+            font-weight: 500;
+            min-height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            border: 2px dashed #e0e0e0;
+        }
+
+        .result-valid {
+            background-color: #d4edda;
+            border-color: #c3e6cb;
+            color: #155724;
+        }
+
+        .result-invalid {
+            background-color: #f8d7da;
+            border-color: #f5c6cb;
+            color: #721c24;
+        }
+
+        .result-error {
+            background-color: #fff3cd;
+            border-color: #ffeeba;
+            color: #856404;
+        }
+
+        .info-section {
+            margin-top: 25px;
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            font-size: 13px;
+            color: #666;
+        }
+
+        .info-section p {
+            margin: 5px 0;
+        }
+
+        .example {
+            cursor: pointer;
+            color: #667eea;
+            text-decoration: underline;
+            text-decoration-style: dotted;
+        }
+
+        .example:hover {
+            color: #764ba2;
+        }
+
+        .footer {
+            margin-top: 20px;
+            text-align: center;
+            color: #999;
+            font-size: 12px;
+        }
+
+        /* Estilo para el label de serie */
+        .serie-label {
+            text-align: left;
+            margin-bottom: 8px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🏦 Banco Central de Bolivia</h1>
+        <div class="subtitle">
+            Verificador de Billetes Dados de Baja, uselo con responsabilidad y bajo su responsabilidad
+        </div>
+
+        <div class="form-group">
+            <label>Denominación del Billete:</label>
+            <!-- NUEVO: Checkboxes en columnas -->
+            <div class="denominacion-container">
+                <div class="denominacion-option">
+                    <input type="checkbox" id="chk10" name="denominacion" value="10" checked>
+                    <label for="chk10">
+                        10 <small>Bs.</small>
+                    </label>
+                </div>
+                <div class="denominacion-option">
+                    <input type="checkbox" id="chk20" name="denominacion" value="20">
+                    <label for="chk20">
+                        20 <small>Bs.</small>
+                    </label>
+                </div>
+                <div class="denominacion-option">
+                    <input type="checkbox" id="chk50" name="denominacion" value="50">
+                    <label for="chk50">
+                        50 <small>Bs.</small>
+                    </label>
+                </div>
+            </div>
+            <!-- MODIFICADO: Script para manejar exclusividad de checkboxes -->
+            <script>
+                // Asegurar que solo un checkbox esté seleccionado
+                document.querySelectorAll('input[name="denominacion"]').forEach(checkbox => {
+                    checkbox.addEventListener('change', function() {
+                        if (this.checked) {
+                            document.querySelectorAll('input[name="denominacion"]').forEach(cb => {
+                                if (cb !== this) cb.checked = false;
+                            });
+                        }
+                    });
+                });
+            </script>
+        </div>
+
+        <div class="form-group">
+            <label class="serie-label" for="serie">Número de Serie:</label>
+            <input type="number" class="serie-input" id="serie" placeholder="Ej: 43211456" required>
+        </div>
+
+        <button class="btn-verify" onclick="verificarBillete()">
+            🔍 Verificar Billete
+        </button>
+
+        <div id="resultado" class="result-container">
+            Ingrese los datos y haga clic en Verificar
+        </div>
+
+        <div class="info-section">
+            <p><strong>📝 Instrucciones:</strong></p>
+            <p>1. Seleccione la denominación del billete (10, 20 o 50)</p>
+            <p>2. Ingrese el número de serie completo</p>
+            <p>3. Haga clic en "Verificar Billete"</p>
+            <p><br><strong>💡 Ejemplos rápidos:</strong></p>
+            <p>• <span class="example" onclick="cargarEjemplo(10, 43211456)">Bs.10 - 43211456</span> (válido)</p>
+            <p>• <span class="example" onclick="cargarEjemplo(10, 67250001)">Bs.10 - 67250001</span> (no válido)</p>
+            <p>• <span class="example" onclick="cargarEjemplo(20, 87280145)">Bs.20 - 87280145</span> (no válido)</p>
+            <p>• <span class="example" onclick="cargarEjemplo(50, 12345678)">Bs.50 - 12345678</span> (válido)</p>
+        </div>
+
+        <div class="footer">
+            © 2026 - By Nerume
+        </div>
+    </div>
+
+    <script>
+        // Rangos de billetes dados de baja (directamente del documento)
+        const RANGOS_BAJA = {
+            10: [
+                [67250001, 67700000],
+                [69050001, 69500000],
+                [69500001, 69950000],
+                [69950001, 70400000],
+                [70400001, 70850000],
+                [70850001, 71300000],
+                [76310012, 85139995],
+                [86400001, 86850000],
+                [90900001, 91350000],
+                [91800001, 92250000]
+            ],
+            20: [
+                [87280145, 91646549],
+                [96650001, 97100000],
+                [99800001, 100250000],
+                [100250001, 100700000],
+                [109250001, 109700000],
+                [110600001, 111050000],
+                [111950001, 112400000],
+                [112450001, 112850000],
+                [113300001, 114650000],
+                [114650001, 115100000],
+                [115150001, 115550000],
+                [118700001, 119150000],
+                [119150001, 119600000],
+                [120500001, 120950000]
+            ],
+            50: [
+                [77100001, 77550000],
+                [78000001, 78450000],
+                [78900001, 96350000],
+                [96350001, 96800000],
+                [96800001, 97250000],
+                [98150001, 98600000],
+                [104900001, 105350000],
+                [105350001, 105800000],
+                [106700001, 107150000],
+                [107600001, 108050000],
+                [108050001, 108500000],
+                [109400001, 109850000]
+            ]
+        };
+
+        function cargarEjemplo(denominacion, serie) {
+            // MODIFICADO: Seleccionar el checkbox correspondiente
+            document.querySelectorAll('input[name="denominacion"]').forEach(cb => {
+                cb.checked = (parseInt(cb.value) === denominacion);
+            });
+            document.getElementById('serie').value = serie;
+            verificarBillete();
+        }
+
+        function verificarBillete() {
+            // MODIFICADO: Obtener denominación de los checkboxes
+            const denominacionCheckbox = document.querySelector('input[name="denominacion"]:checked');
+            const serieInput = document.getElementById('serie').value;
+            const resultadoDiv = document.getElementById('resultado');
+
+            // Validar que se haya seleccionado una denominación
+            if (!denominacionCheckbox) {
+                mostrarResultado('error', '❌ Por favor, seleccione una denominación');
+                return;
+            }
+
+            const denominacion = parseInt(denominacionCheckbox.value);
+
+            // Validar que se haya ingresado un número de serie
+            if (!serieInput) {
+                mostrarResultado('error', '❌ Por favor, ingrese un número de serie');
+                return;
+            }
+
+            // Convertir a número entero
+            const serie = parseInt(serieInput);
+            
+            // Validar que sea un número válido
+            if (isNaN(serie) || serie < 0) {
+                mostrarResultado('error', '❌ El número de serie debe ser un número positivo');
+                return;
+            }
+
+            // Verificar si la serie está en algún rango de baja
+            const estaEnRangoBaja = verificarRangosBaja(denominacion, serie);
+
+            // Mostrar resultado
+            if (estaEnRangoBaja) {
+                mostrarResultado('invalid', `❌ BILLETE NO VÁLIDO<br><small>La serie ${serie} de Bs.${denominacion} está en el rango de billetes dados de baja</small>`);
+            } else {
+                mostrarResultado('valid', `✅ BILLETE VÁLIDO<br><small>La serie ${serie} de Bs.${denominacion} no está en los rangos de baja</small>`);
+            }
+        }
+
+        function verificarRangosBaja(denominacion, serie) {
+            const rangos = RANGOS_BAJA[denominacion];
+            
+            if (!rangos) return false;
+
+            for (let i = 0; i < rangos.length; i++) {
+                const [inicio, fin] = rangos[i];
+                if (serie >= inicio && serie <= fin) {
+                    return true; // Está en rango de baja
+                }
+            }
+            
+            return false; // No está en rango de baja
+        }
+
+        function mostrarResultado(tipo, mensaje) {
+            const resultadoDiv = document.getElementById('resultado');
+            
+            // Remover clases anteriores
+            resultadoDiv.classList.remove('result-valid', 'result-invalid', 'result-error');
+            
+            // Agregar la clase correspondiente
+            switch(tipo) {
+                case 'valid':
+                    resultadoDiv.classList.add('result-valid');
+                    break;
+                case 'invalid':
+                    resultadoDiv.classList.add('result-invalid');
+                    break;
+                case 'error':
+                    resultadoDiv.classList.add('result-error');
+                    break;
+            }
+            
+            // Mostrar mensaje
+            resultadoDiv.innerHTML = mensaje;
+        }
+
+        // Permitir verificar con Enter en el input
+        document.getElementById('serie').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                event.preventDefault();
+                verificarBillete();
+            }
+        });
+    </script>
+</body>
+</html>
